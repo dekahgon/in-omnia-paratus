@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>network · Marvel network</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="js/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="css/style.css?v=20261117-5">
+</head>
+<body class="page-network">
+<nav class="menu">
+  <a class="logo-link" href="index.html" title="back to the start"><img class="site-logo" src="images/logo.png" alt="The Gelatine"></a>
+  <a href="network.html" class="current">network</a><span class="sep">|</span><a href="saved.html">saved networks</a><span class="sep">|</span><a href="characters.html">characters and movies</a><span class="sep">|</span><a href="data.html">data collection</a><span class="sep">|</span><a href="about.html">about</a><span class="sep">|</span><a href="network.html?intro=1" class="help-link" title="how to use this website">?</a>
+</nav>
+<main class="split">
+  <section class="graph-area" id="graph-area">
+    <svg id="graph"></svg>
+    <div class="zoom-ctrl">
+      <button class="tbtn" id="zoom-in" title="zoom in">[+]</button>
+      <button class="tbtn" id="zoom-out" title="zoom out">[−]</button>
+      <button class="tbtn" id="zoom-reset" title="back to the whole network">[reset zoom]</button>
+      <label class="cluster-ctrl" title="how tightly the characters are pulled together (display only, the measurements do not change)">[clustering: <input type="range" id="cluster" min="0" max="100" value="50" aria-label="clustering of the layout">]</label>
+    </div>
+    <div class="too-few" id="too-few" hidden>this network has too few characters to make some of the calculations</div>
+    <div class="empty-net" id="empty-net" hidden>
+      <img src="images/empty.jpg" alt="">
+      <div class="empty-caption">you better get that network back!</div>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <section class="panel-sec">
+      <div class="sec-title">[timeline]</div>
+      <div class="timeline-row">
+        <svg id="slider"></svg>
+        <button class="icon-btn" id="play" title="play: add the movies one by one" aria-label="play">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><rect x="0.5" y="0.5" width="29" height="29" fill="#fff" stroke="#000"/><path d="M11 8.5 L21.5 15 L11 21.5 Z" stroke="#000" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="icon-btn" id="treset" title="reset the timeline to the whole range" aria-label="reset timeline">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><rect x="0.5" y="0.5" width="29" height="29" fill="#fff" stroke="#000"/><path d="M21.2 12.2 A7 7 0 1 0 22 16.5" stroke="#000" stroke-width="1.6"/><path class="fill-ink" d="M23.2 8.2 L22.4 14 L17.2 12.2 Z" fill="#000" stroke="#000" stroke-width="0.6" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="sub-title">[phase]</div>
+      <div id="phases"></div>
+    </section>
+
+    <section class="panel-sec">
+      <div class="edit-head">
+        <span class="sec-title">[measurements] <span class="spinner" id="m-spin" hidden title="calculating"></span></span>
+        <span class="edit-btns">
+          <button class="tbtn" id="compare" title="the paper's summary table: real social networks, myths and fiction">[compare with the paper]</button>
+        </span>
+      </div>
+      <ul class="tree" id="measures"></ul>
+    </section>
+
+    <section class="panel-sec">
+      <div class="sec-title">[most connected]</div>
+      <div id="ranking"></div>
+    </section>
+
+    <section class="panel-sec">
+      <div class="edit-head">
+        <span class="sec-title">[editing mode]</span>
+        <span class="edit-btns">
+          <button class="tbtn" id="ereset" title="all characters and movies of the selected timeline">[reset]</button>
+          <button class="tbtn" id="erandom" title="a random group of characters from the selected timeline">[random]</button>
+          <button class="tbtn" id="esave" title="save this network to the saved networks page">[save]</button>
+          <button class="tbtn" id="eclear" title="remove everything, then add your own movies">[clear]</button>
+        </span>
+      </div>
+
+      <div class="sub-title">[movies add/remove]</div>
+      <div class="search" id="movie-search">
+        <div class="search-row">
+          <input type="text" placeholder="search a movie" autocomplete="off" spellcheck="false">
+          <button class="tbtn" data-act="add" disabled>[add]</button>
+          <button class="tbtn" data-act="remove" disabled>[remove]</button>
+        </div>
+        <div class="results"></div>
+      </div>
+
+      <div class="sub-title">[characters add/remove]</div>
+      <div class="search" id="char-search">
+        <div class="search-row">
+          <div class="chipbox"><span class="chips"></span><input type="text" placeholder="search characters, or click their pictures" autocomplete="off" spellcheck="false"></div>
+          <button class="tbtn" data-act="add" disabled>[add]</button>
+          <button class="tbtn" data-act="remove" disabled>[remove]</button>
+        </div>
+        <div class="results"></div>
+      </div>
+
+      <div class="sub-title">(currently shown) <span class="hint">double click to edit</span></div>
+      <div id="shown"></div>
+    </section>
+  </aside>
+</main>
+<div class="tip" id="tip"></div>
+<div class="modal-back" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="tbtn modal-x" id="modal-x" title="close">[close]</button>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+<script src="js/vendor/katex/katex.min.js"></script>
+<script src="js/vendor/d3.min.js?v=20261117-5"></script>
+<script src="js/data-embedded.js?v=20261117-5"></script>
+<script src="js/data.js?v=20261117-5"></script>
+<script src="js/metrics.js?v=20261117-5"></script>
+<script src="js/network.js?v=20261117-5"></script>
+</body>
+</html>
